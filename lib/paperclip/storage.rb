@@ -46,6 +46,10 @@ module Paperclip
       end
 
       def flush_deletes #:nodoc:
+        unless delete_files?
+          @queued_for_delete = []
+          return
+        end
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")
@@ -213,6 +217,10 @@ module Paperclip
       end
 
       def flush_deletes #:nodoc:
+        unless delete_files?
+          @queued_for_delete = []
+          return
+        end
         @queued_for_delete.each do |path|
           begin
             log("deleting #{path}")

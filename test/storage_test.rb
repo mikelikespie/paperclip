@@ -27,6 +27,23 @@ class StorageTest < Test::Unit::TestCase
       FileUtils.expects(:rm)
       @dummy.destroy_attached_files
     end
+
+    context "with delete_files == false" do
+      setup do
+        rebuild_model :delete_files => false
+        @dummy = Dummy.new
+        @avatar = @dummy.avatar
+      end
+
+      should "not call FileUtils.rm" do
+        @avatar.stubs(:file?).returns true
+        @avatar.stubs(:original_filename).returns "original.png"
+        File.stubs(:exist?).returns true
+
+        FileUtils.expects(:rm).never
+        @dummy.destroy_attached_files
+      end
+    end
   end
 
   context "Parsing S3 credentials" do
@@ -187,7 +204,7 @@ class StorageTest < Test::Unit::TestCase
           assert true
         end
       end
-      
+
       context "and remove" do
         setup do
           AWS::S3::S3Object.stubs(:exists?).returns(true)
@@ -201,7 +218,7 @@ class StorageTest < Test::Unit::TestCase
       end
     end
   end
-  
+
   context "An attachment with S3 storage and bucket defined as a Proc" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
@@ -209,7 +226,7 @@ class StorageTest < Test::Unit::TestCase
                     :bucket => lambda { |attachment| "bucket_#{attachment.instance.other}" },
                     :s3_credentials => {:not => :important}
     end
-    
+
     should "get the right bucket name" do
       assert "bucket_a", Dummy.new(:other => 'a').avatar.bucket_name
       assert "bucket_b", Dummy.new(:other => 'b').avatar.bucket_name
