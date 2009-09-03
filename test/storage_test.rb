@@ -8,6 +8,27 @@ class StorageTest < Test::Unit::TestCase
     end
   end
 
+  context "With a local file" do
+    setup do
+      rebuild_model
+      @dummy = Dummy.new
+      @avatar = @dummy.avatar
+    end
+
+    should "be extended by the Filesystem module" do
+      assert Dummy.new.avatar.is_a?(Paperclip::Storage::Filesystem)
+    end
+
+    should "call FileUtils.rm" do
+      @avatar.stubs(:file?).returns true
+      @avatar.stubs(:original_filename).returns "original.png"
+      File.stubs(:exist?).returns true
+
+      FileUtils.expects(:rm)
+      @dummy.destroy_attached_files
+    end
+  end
+
   context "Parsing S3 credentials" do
     setup do
       AWS::S3::Base.stubs(:establish_connection!)
@@ -170,7 +191,7 @@ class StorageTest < Test::Unit::TestCase
       context "and remove" do
         setup do
           AWS::S3::S3Object.stubs(:exists?).returns(true)
-          AWS::S3::S3Object.stubs(:delete)
+          AWS::S3::S3Object.expects(:delete)
           @dummy.destroy_attached_files
         end
 
