@@ -88,6 +88,10 @@ module Paperclip
       attachment.instance.id
     end
 
+    def digest attachment, style
+      attachment.digest
+    end
+
     # Returns the id of the instance in a split path form. e.g. returns
     # 000/001/234 for an id of 1234.
     def id_partition attachment, style

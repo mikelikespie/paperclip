@@ -174,6 +174,10 @@ module Paperclip
       instance_read(:file_name)
     end
 
+    def digest
+      instance_read(:digest)
+    end
+
     # Returns the size of the file as originally assigned, and lives in the
     # <attachment>_file_size attribute of the model.
     def size
