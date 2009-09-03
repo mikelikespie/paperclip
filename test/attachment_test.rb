@@ -467,10 +467,11 @@ class AttachmentTest < Test::Unit::TestCase
       @not_file = mock
       @tempfile = mock
       @tempfile.stubs(:read).returns("not a real file")
+      @tempfile.expects(:path).returns(nil)
       @not_file.stubs(:nil?).returns(false)
       @not_file.expects(:size).returns(10)
       @tempfile.expects(:size).returns(10)
-      @not_file.expects(:to_tempfile).returns(@tempfile).times(2)
+      @not_file.expects(:to_tempfile).returns(@tempfile)
       @not_file.expects(:original_filename).returns("sheep_say_bæ.png\r\n")
       @not_file.expects(:content_type).returns("image/png\r\n")
       
