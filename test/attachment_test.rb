@@ -466,10 +466,11 @@ class AttachmentTest < Test::Unit::TestCase
       
       @not_file = mock
       @tempfile = mock
+      @tempfile.stubs(:read).returns("not a real file")
       @not_file.stubs(:nil?).returns(false)
       @not_file.expects(:size).returns(10)
       @tempfile.expects(:size).returns(10)
-      @not_file.expects(:to_tempfile).returns(@tempfile)
+      @not_file.expects(:to_tempfile).returns(@tempfile).times(2)
       @not_file.expects(:original_filename).returns("sheep_say_bæ.png\r\n")
       @not_file.expects(:content_type).returns("image/png\r\n")
       
@@ -531,6 +532,7 @@ class AttachmentTest < Test::Unit::TestCase
         @attachment.stubs(:instance_read).with(:file_name).returns("5k.png")
         @attachment.stubs(:instance_read).with(:content_type).returns("image/png")
         @attachment.stubs(:instance_read).with(:file_size).returns(12345)
+        @attachment.stubs(:instance_read).with(:digest).returns("DIGEST")
         now = Time.now
         Time.stubs(:now).returns(now)
         @attachment.stubs(:instance_read).with(:updated_at).returns(Time.now)
@@ -640,6 +642,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.expects(:instance_write).with(:file_name, nil)
                 @attachment.expects(:instance_write).with(:content_type, nil)
                 @attachment.expects(:instance_write).with(:file_size, nil)
+                @attachment.expects(:instance_write).with(:digest, nil)
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.assign nil
                 @attachment.save
@@ -650,6 +653,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.expects(:instance_write).with(:file_name, nil)
                 @attachment.expects(:instance_write).with(:content_type, nil)
                 @attachment.expects(:instance_write).with(:file_size, nil)
+                @attachment.expects(:instance_write).with(:digest, nil)
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.clear
                 @attachment.save
@@ -660,6 +664,7 @@ class AttachmentTest < Test::Unit::TestCase
                 @attachment.expects(:instance_write).with(:file_name, nil)
                 @attachment.expects(:instance_write).with(:content_type, nil)
                 @attachment.expects(:instance_write).with(:file_size, nil)
+                @attachment.expects(:instance_write).with(:digest, nil)
                 @attachment.expects(:instance_write).with(:updated_at, nil)
                 @attachment.destroy
                 @existing_names.each{|f| assert ! File.exists?(f) }
@@ -682,6 +687,29 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
+  require 'ruby-debug'
+
+  context "An attachment with a digest column" do
+    setup do
+      ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
+        table.column :avatar_file_name, :string
+        table.column :avatar_digest, :string
+      end
+      rebuild_class
+      @dummy = Dummy.new
+      @file_name = File.join(File.dirname(__FILE__), "fixtures", "5k.png")
+      @file = File.new(@file_name, 'rb')
+      @digest = Digest::SHA1.hexdigest(File.new(@file_name, 'r').read)
+    end
+    
+    teardown { @file.close }
+
+    should "have a digest set based on a hash" do
+      @dummy.avatar = @file
+      assert_equal @dummy.avatar_digest, @digest
+    end
+  end
+  
   context "An attachment with only a avatar_file_name column" do
     setup do
       ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
