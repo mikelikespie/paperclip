@@ -28,7 +28,7 @@ class StorageTest < Test::Unit::TestCase
       @dummy.destroy_attached_files
     end
 
-    context "with delete_files == false" do
+    context "with #delete_files? == false" do
       setup do
         rebuild_model :delete_files => false
         @dummy = Dummy.new
@@ -208,12 +208,16 @@ class StorageTest < Test::Unit::TestCase
       context "and remove" do
         setup do
           AWS::S3::S3Object.stubs(:exists?).returns(true)
+        end
+
+        should "delete files" do
           AWS::S3::S3Object.expects(:delete)
           @dummy.destroy_attached_files
         end
 
-        should "succeed" do
-          assert true
+        should "not delete files when #delete_files? == false" do
+          @dummy.avatar.stubs(:delete_files?).returns(false)
+          @dummy.destroy_attached_files
         end
       end
     end
