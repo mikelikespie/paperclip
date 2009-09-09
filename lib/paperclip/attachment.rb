@@ -6,10 +6,13 @@ module Paperclip
   # when the model saves, deletes when the model is destroyed, and processes
   # the file upon assignment.
   class Attachment
+    
+    DEFAULT_URL = "/system/:attachment/:id/:style/:filename".freeze
+    DIGEST_URL = "/system/files/:digest/:style.:extension".freeze
 
     def self.default_options
       @default_options ||= {
-        :url           => "/system/:attachment/:id/:style/:filename",
+        :url           => DEFAULT_URL,
         :path          => ":rails_root/public:url",
         :styles        => {},
         :default_url   => "/:attachment/:style/missing.png",
