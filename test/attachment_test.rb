@@ -688,8 +688,6 @@ class AttachmentTest < Test::Unit::TestCase
     end
   end
 
-  require 'ruby-debug'
-
   context "An attachment with a digest column" do
     setup do
       ActiveRecord::Base.connection.create_table :dummies, :force => true do |table|
