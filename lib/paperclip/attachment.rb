@@ -8,7 +8,8 @@ module Paperclip
   class Attachment
     
     DEFAULT_URL = "/system/:attachment/:id/:style/:filename".freeze
-    DIGEST_URL = "/system/files/:digest/:style.:extension".freeze
+    DIGEST_PATH = "files/:digest/:style.:extension".freeze
+    DIGEST_URL = "/system/#{DIGEST_PATH}".freeze
 
     def self.default_options
       @default_options ||= {
