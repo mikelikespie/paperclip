@@ -81,7 +81,7 @@ class PaperclipTest < Test::Unit::TestCase
       
       should "returns text/plain for a YAML file" do
         file = File.join(File.dirname(__FILE__), "fixtures", "s3.yml")
-        assert_match "text/plain", Paperclip.content_type_for_file(file)
+        assert_equal "text/plain", Paperclip.content_type_for_file(file)
       end
       
       should "returns application/pdf for a PDF file" do
@@ -103,7 +103,7 @@ class PaperclipTest < Test::Unit::TestCase
 
       should "returns text/plain for a YAML file" do
         file = File.new(File.join(File.dirname(__FILE__), "fixtures", "s3.yml"), "rb")
-        assert_match "text/plain", Paperclip.content_type_for_file(file)
+        assert_equal "text/plain", Paperclip.content_type_for_file(file)
       end
 
       should "returns application/pdf for a PDF file" do

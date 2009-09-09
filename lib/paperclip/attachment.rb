@@ -90,7 +90,8 @@ module Paperclip
       else
         instance_write(:digest,        Digest::SHA1.hexdigest(@queued_for_write[:original].read))
       end
-      instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
+      content_type = Paperclip.content_type_for_file(@queued_for_write[:original]) || uploaded_file.content_type
+      instance_write(:content_type,    content_type.to_s.strip)
       instance_write(:file_size,       uploaded_file.size.to_i)
       instance_write(:updated_at,      Time.now)
 

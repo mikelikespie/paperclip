@@ -103,12 +103,15 @@ module Paperclip
       output
     end
 
+    SIMPLE_MIME_TYPE = %r{\A([a-zA-Z0-9-]+/[a-zA-Z0-9-]+)}.freeze
+    
     # The content_type_for_file method determines the MIME type of a file
     # using the `file` command. Returns nil on failure.
     def content_type_for_file file
       file = file.path if file.respond_to? "path"
       begin
-        Paperclip.run("file", %Q[-bI "#{file}"]).strip
+        match = SIMPLE_MIME_TYPE.match(Paperclip.run("file", %Q[-bI "#{file}"]))
+        content_type = match ? match[0] : nil
       rescue PaperclipCommandLineError
         nil
       end
