@@ -103,6 +103,17 @@ module Paperclip
       output
     end
 
+    # The content_type_for_file method determines the MIME type of a file
+    # using the `file` command. Returns nil on failure.
+    def content_type_for_file file
+      file = file.path if file.respond_to? "path"
+      begin
+        Paperclip.run("file", %Q[-bI "#{file}"]).strip
+      rescue PaperclipCommandLineError
+        nil
+      end
+    end
+
     def bit_bucket #:nodoc:
       File.exists?("/dev/null") ? "/dev/null" : "NUL"
     end
