@@ -80,6 +80,7 @@ module Paperclip
     # of the actual extension.
     def extension attachment, style 
       ((style = attachment.styles[style]) && style[:format]) ||
+        Paperclip.extension_for_content_type(attachment.content_type) ||
         File.extname(attachment.original_filename).gsub(/^\.+/, "")
     end
 

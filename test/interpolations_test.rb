@@ -36,18 +36,27 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal "one", Paperclip::Interpolations.basename(attachment, :style)
   end
 
-  should "return the extension of the file" do
+  should "return the extension of the file as the format if defined in the style" do
     attachment = mock
-    attachment.expects(:original_filename).returns("one.jpg")
+    attachment.expects(:styles).returns({:style => {:format => "png"}})
+    attachment.expects(:original_filename).never
+    assert_equal "png", Paperclip::Interpolations.extension(attachment, :style)
+  end
+
+  should "return the extension of the file if content_type is blank" do
+    attachment = mock
     attachment.expects(:styles).returns({})
+    attachment.expects(:content_type).returns(nil)
+    attachment.expects(:original_filename).returns("one.jpg")
     assert_equal "jpg", Paperclip::Interpolations.extension(attachment, :style)
   end
 
-  should "return the extension of the file as the format if defined in the style" do
+  should "return the default file extension for the content_type" do
     attachment = mock
+    attachment.expects(:styles).returns({})
+    attachment.expects(:content_type).returns("image/jpeg")
     attachment.expects(:original_filename).never
-    attachment.expects(:styles).returns({:style => {:format => "png"}})
-    assert_equal "png", Paperclip::Interpolations.extension(attachment, :style)
+    assert_equal "jpeg", Paperclip::Interpolations.extension(attachment, :style)
   end
 
   should "return the id of the attachment" do
@@ -87,7 +96,7 @@ class InterpolationsTest < Test::Unit::TestCase
     assert_equal "1234", Paperclip::Interpolations.url(attachment, :style)
   end
 
-  should "raise if infinite loop detcted reinterpolating :url" do
+  should "raise if infinite loop detected reinterpolating :url" do
     attachment = mock
     attachment.expects(:options).returns({:url => ":url"})
     assert_raises(Paperclip::InfiniteInterpolationError){ Paperclip::Interpolations.url(attachment, :style) }
@@ -96,6 +105,7 @@ class InterpolationsTest < Test::Unit::TestCase
   should "return the filename as basename.extension" do
     attachment = mock
     attachment.expects(:styles).returns({})
+    attachment.expects(:content_type).returns(nil)
     attachment.expects(:original_filename).returns("one.jpg").times(3)
     assert_equal "one.jpg", Paperclip::Interpolations.filename(attachment, :style)
   end
