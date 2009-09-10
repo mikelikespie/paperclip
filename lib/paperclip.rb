@@ -26,6 +26,7 @@
 # See the +has_attached_file+ documentation for more details.
 
 require 'tempfile'
+require 'mime/types'
 require 'paperclip/upfile'
 require 'paperclip/iostream'
 require 'paperclip/geometry'
@@ -115,6 +116,13 @@ module Paperclip
       rescue PaperclipCommandLineError
         nil
       end
+    end
+    
+    # The extension_for_content_type method determines the best filename extension
+    # for a given MIME type. Returns the default first extension for the supplied
+    # MIME type. Returns nil on failure.
+    def extension_for_content_type content_type
+      (t = MIME::Types[content_type]) && (f = t.first) && f.extensions.first
     end
 
     def bit_bucket #:nodoc:

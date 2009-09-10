@@ -118,6 +118,31 @@ class PaperclipTest < Test::Unit::TestCase
     end
   end
 
+  context "Paperclip.extension_for_content_type" do
+    should "return nil for nil" do
+      assert_nil Paperclip.extension_for_content_type(nil)
+    end
+
+    Hash[
+      nil,                        nil,
+      "text/plain",               "txt",
+      "text/html",                "html",
+      "text/csv",                 "csv",
+      "text/xml",                 "xml",
+      "text/css",                 "css",
+      "image/gif",                "gif",
+      "image/jpeg",               "jpeg",
+      "image/png",                "png",
+      "image/tiff",               "tiff",
+      "application/pdf",          "pdf",
+      "application/octet-stream", "bin",
+    ].each do |content_type, extension|
+      should "return #{extension} for #{content_type}" do
+        assert_equal extension, Paperclip.extension_for_content_type(content_type)
+      end
+    end
+  end
+
   context "Paperclip.bit_bucket" do
     context "on systems without /dev/null" do
       setup do

@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--line-numbers", "--inline-source"]
   s.require_paths = ["lib"]
   s.requirements = ["ImageMagick"]
+  s.dependencies = ["mime-types"]
   s.rubyforge_project = %q{paperclip}
   s.rubygems_version = %q{1.3.1}
   s.summary = %q{File attachments as attributes for ActiveRecord}
