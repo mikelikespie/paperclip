@@ -26,7 +26,6 @@
 # See the +has_attached_file+ documentation for more details.
 
 require 'tempfile'
-require 'mime/types'
 require 'paperclip/upfile'
 require 'paperclip/iostream'
 require 'paperclip/geometry'
@@ -38,6 +37,16 @@ require 'paperclip/attachment'
 if defined? RAILS_ROOT
   Dir.glob(File.join(File.expand_path(RAILS_ROOT), "lib", "paperclip_processors", "*.rb")).each do |processor|
     require processor
+  end
+end
+
+# Lightly hacking to allow Paperclip to operate without mime-types gem.
+# Also so `rake gems:install` works.
+begin
+  require 'mime/types'
+rescue LoadError
+  module MIME
+    Types = {}
   end
 end
 
