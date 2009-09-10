@@ -15,10 +15,12 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--line-numbers", "--inline-source"]
   s.require_paths = ["lib"]
   s.requirements = ["ImageMagick"]
-  s.dependencies = ["mime-types"]
   s.rubyforge_project = %q{paperclip}
   s.rubygems_version = %q{1.3.1}
   s.summary = %q{File attachments as attributes for ActiveRecord}
+
+  # aws-s3 also requires mime-types
+  s.add_dependency(%q<mime-types>, [">= 1.0"])
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
