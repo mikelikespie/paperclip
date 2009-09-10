@@ -74,44 +74,44 @@ class PaperclipTest < Test::Unit::TestCase
   
   context "Paperclip.content_type_for_file" do
     context "with a string argument" do
-      should "returns image/gif for a GIF image" do
+      should "return image/gif for a GIF image" do
         file = File.join(File.dirname(__FILE__), "fixtures", "ceedub.gif")
         assert_equal "image/gif", Paperclip.content_type_for_file(file)
       end
       
-      should "returns text/plain for a YAML file" do
+      should "return text/plain for a YAML file" do
         file = File.join(File.dirname(__FILE__), "fixtures", "s3.yml")
         assert_equal "text/plain", Paperclip.content_type_for_file(file)
       end
       
-      should "returns application/pdf for a PDF file" do
+      should "return application/pdf for a PDF file" do
         file = File.join(File.dirname(__FILE__), "fixtures", "twopage.pdf")
         assert_equal "application/pdf", Paperclip.content_type_for_file(file)
       end
 
-      should "returns application/octet-stream for a bad PNG file" do
+      should "return application/octet-stream for a bad PNG file" do
         file = File.join(File.dirname(__FILE__), "fixtures", "bad.png")
         assert_equal "application/octet-stream", Paperclip.content_type_for_file(file)
       end
     end
 
     context "with a file argument" do
-      should "returns image/gif for a GIF image" do
+      should "return image/gif for a GIF image" do
         file = File.new(File.join(File.dirname(__FILE__), "fixtures", "ceedub.gif"), "rb")
         assert_equal "image/gif", Paperclip.content_type_for_file(file)
       end
 
-      should "returns text/plain for a YAML file" do
+      should "return text/plain for a YAML file" do
         file = File.new(File.join(File.dirname(__FILE__), "fixtures", "s3.yml"), "rb")
         assert_equal "text/plain", Paperclip.content_type_for_file(file)
       end
 
-      should "returns application/pdf for a PDF file" do
+      should "return application/pdf for a PDF file" do
         file = File.new(File.join(File.dirname(__FILE__), "fixtures", "twopage.pdf"), "rb")
         assert_equal "application/pdf", Paperclip.content_type_for_file(file)
       end
 
-      should "returns application/octet-stream for a bad PNG file" do
+      should "return application/octet-stream for a bad PNG file" do
         file = File.new(File.join(File.dirname(__FILE__), "fixtures", "bad.png"), "rb")
         assert_equal "application/octet-stream", Paperclip.content_type_for_file(file)
       end
