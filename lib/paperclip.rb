@@ -110,7 +110,7 @@ module Paperclip
     def content_type_for_file file
       file = file.path if file.respond_to? "path"
       begin
-        match = SIMPLE_MIME_TYPE.match(Paperclip.run("file", %Q[-bI "#{file}"]))
+        match = SIMPLE_MIME_TYPE.match(Paperclip.run("file", %Q[--brief --mime "#{file}"]))
         content_type = match ? match[0] : nil
       rescue PaperclipCommandLineError
         nil
