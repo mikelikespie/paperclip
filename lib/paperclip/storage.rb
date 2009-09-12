@@ -162,6 +162,9 @@ module Paperclip
         Paperclip.interpolates(:s3_domain_url) do |attachment, style|
           "#{attachment.s3_protocol}://#{attachment.bucket_name}.s3.amazonaws.com/#{attachment.path(style).gsub(%r{^/}, "")}"
         end
+        Paperclip.interpolates(:s3_simple_url) do |attachment, style|
+          "/#{attachment.path(style).gsub(%r{^/}, "")}"
+        end
       end
 
       def bucket_name
