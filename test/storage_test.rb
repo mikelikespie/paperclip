@@ -92,7 +92,7 @@ class StorageTest < Test::Unit::TestCase
                     :path => ":attachment/:basename.:extension",
                     :url => ":s3_path_url"
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = StringIO.new("text")
     end
 
     should "return a url based on an S3 path" do
@@ -109,7 +109,7 @@ class StorageTest < Test::Unit::TestCase
                     :path => ":attachment/:basename.:extension",
                     :url => ":s3_domain_url"
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = StringIO.new("text")
     end
 
     should "return a url based on an S3 subdomain" do
@@ -129,7 +129,7 @@ class StorageTest < Test::Unit::TestCase
                     :path => ":attachment/:basename.:extension",
                     :url => ":s3_alias_url"
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = StringIO.new("text")
     end
 
     should "return a url based on the host_alias" do
@@ -149,7 +149,7 @@ class StorageTest < Test::Unit::TestCase
                     :path => ":attachment/:basename.:extension",
                     :url => ":s3_simple_url"
       @dummy = Dummy.new
-      @dummy.avatar = StringIO.new(".")
+      @dummy.avatar = StringIO.new("text")
     end
 
     should "return a url based on the host_alias" do
