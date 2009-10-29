@@ -23,6 +23,7 @@ class ValidateAttachmentContentTypeMatcherTest < Test::Unit::TestCase
     end
 
     should "accept a class with a validation" do
+      Paperclip.stubs(:content_type_for_file).returns(nil)
       @dummy_class.validates_attachment_content_type :avatar, :content_type => %r{image/.*}
       assert_accepts @matcher, @dummy_class
     end
