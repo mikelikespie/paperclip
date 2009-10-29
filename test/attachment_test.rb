@@ -534,9 +534,10 @@ class AttachmentTest < Test::Unit::TestCase
         @attachment.stubs(:instance_read).with(:content_type).returns("image/png")
         @attachment.stubs(:instance_read).with(:file_size).returns(12345)
         @attachment.stubs(:instance_read).with(:digest).returns("DIGEST")
-        now = Time.now
-        Time.stubs(:now).returns(now)
-        @attachment.stubs(:instance_read).with(:updated_at).returns(Time.now)
+        dtnow = DateTime.now
+        @now = Time.now
+        Time.stubs(:now).returns(@now)
+        @attachment.stubs(:instance_read).with(:updated_at).returns(dtnow)
       end
 
       should "return a correct url even if the file does not exist" do
@@ -545,11 +546,11 @@ class AttachmentTest < Test::Unit::TestCase
       end
 
       should "make sure the updated_at mtime is in the url if it is defined" do
-        assert_match %r{#{Time.now.to_i}$}, @attachment.url(:blah)
+        assert_match %r{#{@now.to_i}$}, @attachment.url(:blah)
       end
 
       should "make sure the updated_at mtime is NOT in the url if false is passed to the url method" do
-        assert_no_match %r{#{Time.now.to_i}$}, @attachment.url(:blah, false)
+        assert_no_match %r{#{@now.to_i}$}, @attachment.url(:blah, false)
       end
 
       context "with the updated_at field removed" do
