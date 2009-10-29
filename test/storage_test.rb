@@ -96,7 +96,7 @@ class StorageTest < Test::Unit::TestCase
     end
 
     should "return a url based on an S3 path" do
-      assert_match %r{^http://s3.amazonaws.com/bucket/avatars/stringio.bin}, @dummy.avatar.url
+      assert_match %r{^http://s3.amazonaws.com/bucket/avatars/stringio.txt}, @dummy.avatar.url
     end
   end
   
@@ -113,7 +113,7 @@ class StorageTest < Test::Unit::TestCase
     end
 
     should "return a url based on an S3 subdomain" do
-      assert_match %r{^http://bucket.s3.amazonaws.com/avatars/stringio.bin}, @dummy.avatar.url
+      assert_match %r{^http://bucket.s3.amazonaws.com/avatars/stringio.txt}, @dummy.avatar.url
     end
   end
   
@@ -133,7 +133,7 @@ class StorageTest < Test::Unit::TestCase
     end
 
     should "return a url based on the host_alias" do
-      assert_match %r{^http://something.something.com/avatars/stringio.bin}, @dummy.avatar.url
+      assert_match %r{^http://something.something.com/avatars/stringio.txt}, @dummy.avatar.url
     end
   end
 
@@ -153,7 +153,7 @@ class StorageTest < Test::Unit::TestCase
     end
 
     should "return a url based on the host_alias" do
-      assert_match %r{^/avatars/stringio.bin}, @dummy.avatar.url
+      assert_match %r{^/avatars/stringio.txt}, @dummy.avatar.url
     end
   end
 
