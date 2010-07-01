@@ -545,12 +545,16 @@ class AttachmentTest < Test::Unit::TestCase
         assert_match %r{^/system/avatars/#{@instance.id}/blah/5k\.png}, @attachment.url(:blah)
       end
 
-      should "make sure the updated_at mtime is in the url if it is defined" do
-        assert_match %r{#{@now.to_i}$}, @attachment.url(:blah)
+      should "make sure the updated_at mtime is in the url if it is defined (when true is passed)" do
+        assert_match %r{#{@now.to_i}$}, @attachment.url(:blah, true)
       end
 
-      should "make sure the updated_at mtime is NOT in the url if false is passed to the url method" do
+      should "make sure the updated_at mtime is NOT in the url (when false is passed)" do
         assert_no_match %r{#{@now.to_i}$}, @attachment.url(:blah, false)
+      end
+
+      should "make sure the updated_at mtime is NOT in the url (when nothing is passed)" do
+        assert_no_match %r{#{@now.to_i}$}, @attachment.url(:blah)
       end
 
       context "with the updated_at field removed" do
