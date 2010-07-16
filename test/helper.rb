@@ -27,6 +27,8 @@ require 'action_pack'
 
 puts "Testing against version #{ActiveRecord::VERSION::STRING}"
 
+`ruby -e 'exit 0'` # Prime $? with a value.
+
 begin
   require 'ruby-debug'
 rescue LoadError => e
@@ -144,5 +146,15 @@ def should_reject_dummy_class
 
   should "reject an instance of that class" do
     assert_rejects @matcher, @dummy_class.new
+  end
+end
+
+def with_exitstatus_returning(code)
+  saved_exitstatus = $?.nil? ? 0 : $?.exitstatus
+  begin
+    `ruby -e 'exit #{code.to_i}'`
+    yield
+  ensure
+    `ruby -e 'exit #{saved_exitstatus.to_i}'`
   end
 end

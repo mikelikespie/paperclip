@@ -20,6 +20,7 @@ module Paperclip
         :default_url       => "/:attachment/:style/missing.png",
         :default_style     => :original,
         :storage           => :filesystem,
+        :delete_files      => true,
         :whiny             => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails]
       }
     end
