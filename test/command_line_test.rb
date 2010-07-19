@@ -91,9 +91,8 @@ class CommandLineTest < Test::Unit::TestCase
   end
 
   should "log the command" do
-    cmd = Paperclip::CommandLine.new("convert", "a.jpg b.png")
+    cmd = Paperclip::CommandLine.new("convert", "a.jpg b.png", :expected_outcodes => [1])
     cmd.class.stubs(:'`')
-    $?.stubs(:exitstatus).returns(0)
     Paperclip.expects(:log).with("convert a.jpg b.png")
     cmd.run
   end
