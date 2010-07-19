@@ -443,6 +443,8 @@ class AttachmentTest < Test::Unit::TestCase
     setup do
       rebuild_model
 
+      Paperclip.stubs(:content_type_for_file).returns(nil)
+
       @not_file = mock
       @tempfile = mock
       @tempfile.stubs(:read).returns("not a real file")
