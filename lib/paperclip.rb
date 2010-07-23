@@ -109,6 +109,7 @@ module Paperclip
     # using the `file` command. Returns nil on failure.
     def content_type_for_file file
       file = file.path if file.respond_to? "path"
+      return nil if file.nil?
       begin
         match = SIMPLE_MIME_TYPE.match(Paperclip.run("file", "--brief --mime :file", :file => file))
         content_type = match ? match[0] : nil

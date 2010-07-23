@@ -87,6 +87,17 @@ class PaperclipTest < Test::Unit::TestCase
         assert_equal "application/octet-stream", Paperclip.content_type_for_file(file)
       end
     end
+
+    context "with an argument that responds to #path with nil" do
+      should "return nil" do
+        assert_nil Paperclip.content_type_for_file(StringIO.new)
+      end
+
+      should "not try to run the `file` command" do
+        Paperclip.expects(:run).never
+        Paperclip.content_type_for_file(StringIO.new)
+      end
+    end
   end
 
   context "Paperclip.extension_for_content_type" do
