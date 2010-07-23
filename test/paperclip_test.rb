@@ -101,10 +101,6 @@ class PaperclipTest < Test::Unit::TestCase
   end
 
   context "Paperclip.extension_for_content_type" do
-    should "return nil for nil" do
-      assert_nil Paperclip.extension_for_content_type(nil)
-    end
-
     Hash[
       nil,                        nil,
       "text/plain",               "txt",
