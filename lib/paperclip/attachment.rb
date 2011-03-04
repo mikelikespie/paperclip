@@ -1,18 +1,15 @@
 # encoding: utf-8
-require 'digest/sha1'
-
+require "digest/sha1"
 module Paperclip
   # The Attachment class manages the files for a given attachment. It saves
   # when the model saves, deletes when the model is destroyed, and processes
   # the file upon assignment.
   class Attachment
-    DEFAULT_URL = "/system/:attachment/:id/:style/:filename".freeze
-    DIGEST_PATH = "files/:digest/:style.:extension".freeze
-    DIGEST_URL = "/system/#{DIGEST_PATH}".freeze
+    include IOStream
 
     def self.default_options
       @default_options ||= {
-        :url               => DEFAULT_URL,
+        :url               => "/system/:attachment/:id/:style/:filename",
         :path              => ":rails_root/public:url",
         :styles            => {},
         :processors        => [:thumbnail],
@@ -21,6 +18,7 @@ module Paperclip
         :default_style     => :original,
         :storage           => :filesystem,
         :delete_files      => true,
+        :use_timestamp     => true,
         :whiny             => Paperclip.options[:whiny] || Paperclip.options[:whiny_thumbnails]
       }
     end
@@ -46,6 +44,7 @@ module Paperclip
       @default_style     = options[:default_style]
       @storage           = options[:storage]
       @delete_files      = options[:delete_files]
+      @use_timestamp     = options[:use_timestamp]
       @whiny             = options[:whiny_thumbnails] || options[:whiny]
       @convert_options   = options[:convert_options]
       @processors        = options[:processors]
@@ -62,7 +61,7 @@ module Paperclip
       unless @normalized_styles
         @normalized_styles = {}
         (@styles.respond_to?(:call) ? @styles.call(self) : @styles).each do |name, args|
-          @normalized_styles[name] = Paperclip::Style.new(name, args, self)
+          @normalized_styles[name] = Paperclip::Style.new(name, args.dup, self)
         end
       end
       @normalized_styles
@@ -93,16 +92,12 @@ module Paperclip
 
       return nil if uploaded_file.nil?
 
-      @queued_for_write[:original]   = uploaded_file.to_tempfile
+      @queued_for_write[:original]   = to_tempfile(uploaded_file)
       instance_write(:file_name,       uploaded_file.original_filename.strip)
-      if @queued_for_write[:original].path
-        instance_write(:digest,        Digest::SHA1.file(@queued_for_write[:original].path).hexdigest)
-      else
-        instance_write(:digest,        Digest::SHA1.hexdigest(@queued_for_write[:original].read))
-      end
       content_type = Paperclip.content_type_for_file(@queued_for_write[:original]) || uploaded_file.content_type
       instance_write(:content_type,    content_type.to_s.strip)
       instance_write(:file_size,       uploaded_file.size.to_i)
+      instance_write(:digest,     generate_digest(uploaded_file))
       instance_write(:updated_at,      Time.now)
 
       @dirty = true
@@ -110,7 +105,8 @@ module Paperclip
       post_process
 
       # Reset the file size if the original file was reprocessed.
-      instance_write(:file_size, @queued_for_write[:original].size.to_i)
+      instance_write(:file_size,   @queued_for_write[:original].size.to_i)
+      instance_write(:digest, generate_digest(@queued_for_write[:original]))
     ensure
       uploaded_file.close if close_uploaded_file
     end
@@ -119,12 +115,11 @@ module Paperclip
     # this does not necessarily need to point to a file that your web server
     # can access and can point to an action in your app, if you need fine
     # grained security.  This is not recommended if you don't need the
-    # security, however, for performance reasons.  set
-    # include_updated_timestamp to false if you want to stop the attachment
-    # update time appended to the url
-    def url style_name = default_style, include_updated_timestamp = false
+    # security, however, for performance reasons. Set use_timestamp to false
+    # if you want to stop the attachment update time appended to the url
+    def url(style_name = default_style, use_timestamp = @use_timestamp)
       url = original_filename.nil? ? interpolate(@default_url, style_name) : interpolate(@url, style_name)
-      include_updated_timestamp && updated_at ? [url, updated_at].compact.join(url.include?("?") ? "&" : "?") : url
+      use_timestamp && updated_at ? [url, updated_at].compact.join(url.include?("?") ? "&" : "?") : url
     end
 
     # Returns the path of the attachment as defined by the :path option. If the
@@ -191,6 +186,12 @@ module Paperclip
       instance_read(:file_size) || (@queued_for_write[:original] && @queued_for_write[:original].size)
     end
 
+    # Returns the hash of the file as originally assigned, and lives in the
+    # <attachment>_digest attribute of the model.
+    def digest
+      instance_read(:digest) || (@queued_for_write[:original] && generate_digest(@queued_for_write[:original]))
+    end
+
     # Returns the content_type of the file as originally assigned, and lives
     # in the <attachment>_content_type attribute of the model.
     def content_type
@@ -202,6 +203,12 @@ module Paperclip
     def updated_at
       time = instance_read(:updated_at)
       time && time.to_f.to_i
+    end
+
+    def generate_digest(source)
+      data = source.read
+      source.rewind if source.respond_to?(:rewind)
+      Digest::SHA1.hexdigest(data)
     end
 
     # Paths and URLs can have a number of variables interpolated into them
@@ -282,7 +289,12 @@ module Paperclip
     end
 
     def initialize_storage #:nodoc:
-      @storage_module = Paperclip::Storage.const_get(@storage.to_s.capitalize)
+      storage_class_name = @storage.to_s.capitalize
+      begin
+        @storage_module = Paperclip::Storage.const_get(storage_class_name)
+      rescue NameError
+        raise StorageMethodNotFound, "Cannot load storage module '#{storage_class_name}'"
+      end
       self.extend(@storage_module)
     end
 
