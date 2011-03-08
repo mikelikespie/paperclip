@@ -468,7 +468,6 @@ class AttachmentTest < Test::Unit::TestCase
       @not_file = mock("not_file")
       @tempfile = mock("tempfile")
       @tempfile.stubs(:read).returns("not a real file")
-      @tempfile.expects(:path).returns(nil)
       @not_file.stubs(:nil?).returns(false)
       @not_file.expects(:size).returns(10)
       @tempfile.expects(:size).returns(10)
@@ -554,8 +553,8 @@ class AttachmentTest < Test::Unit::TestCase
         assert_no_match %r{#{@now.to_i}$}, @attachment.url(:blah, false)
       end
 
-      should "make sure the updated_at mtime is NOT in the url (when nothing is passed)" do
-        assert_no_match %r{#{@now.to_i}$}, @attachment.url(:blah)
+      should "make sure the updated_at mtime defaults to appearing in the url" do
+        assert_match %r{#{@now.to_i}$}, @attachment.url(:blah)
       end
 
       context "with the updated_at field removed" do
@@ -815,6 +814,8 @@ class AttachmentTest < Test::Unit::TestCase
         ActiveRecord::Base.connection.add_column :dummies, :avatar_digest, :string
         rebuild_class
         @dummy = Dummy.new
+        @digest = Digest::SHA1.hexdigest(@file.read)
+        @file.rewind
       end
 
       should "not error when assigned an attachment" do
@@ -823,14 +824,14 @@ class AttachmentTest < Test::Unit::TestCase
 
       should "return the right value when sent #avatar_digest" do
         @dummy.avatar = @file
-        assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_digest
+        assert_equal @digest, @dummy.avatar_digest
       end
 
       should "return the right value when saved, reloaded, and sent #avatar_digest" do
         @dummy.avatar = @file
         @dummy.save
         @dummy = Dummy.find(@dummy.id)
-        assert_equal 'aec488126c3b33c08a10c3fa303acf27', @dummy.avatar_digest
+        assert_equal @digest, @dummy.avatar_digest
       end
     end
   end
