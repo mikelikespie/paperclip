@@ -9,7 +9,7 @@ class AsyncStorageTest < Test::Unit::TestCase
   context "when the async storage engine is chosen" do
     setup do
       rebuild_model :storage => :async,
-                    :proxy_class => DummyProxy,
+                    :storage_proxy => DummyProxy,
                     :bucket => "testing",
                     :path => ":attachment/:style/:basename.:extension",
                     :s3_credentials => {
@@ -40,7 +40,7 @@ class AsyncStorageTest < Test::Unit::TestCase
 
       teardown { @file.close }
 
-      context "when the proxy_class is processing?" do
+      context "when the storage_proxy is processing?" do
         context "and saved" do
           setup do
             @proxy = DummyProxy.new("content")
@@ -53,7 +53,7 @@ class AsyncStorageTest < Test::Unit::TestCase
         end
       end
 
-      context "when the proxy_class is not processing?" do
+      context "when the storage_proxy is not processing?" do
         context "and saved" do
           setup do
             AWS::S3::S3Object.stubs(:store).with(@dummy.avatar.path, anything, 'testing', :content_type => 'image/png', :access => :public_read)

@@ -40,6 +40,7 @@ require 'paperclip/attachment'
 require 'paperclip/storage'
 require 'paperclip/callback_compatability'
 require 'paperclip/command_line'
+require 'paperclip/delayed'
 require 'paperclip/railtie'
 if defined?(Rails.root) && Rails.root
   Dir.glob(File.join(File.expand_path(Rails.root), "lib", "paperclip_processors", "*.rb")).each do |processor|
@@ -365,6 +366,8 @@ module Paperclip
     def attachment_definitions
       read_inheritable_attribute(:attachment_definitions)
     end
+
+    include Delayed
   end
 
   module InstanceMethods #:nodoc:
