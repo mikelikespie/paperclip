@@ -31,8 +31,8 @@ module Delayed
 
     self.send("before_#{name}_post_process", :"halt_processing_for_#{name}")
 
-    before_save :"enqueue_delete_for_#{name}"
-    before_save :"#{name}_process_and_upload"
+    after_save :"enqueue_delete_for_#{name}"
+    after_save :"#{name}_process_and_upload"
     after_save :"enqueue_save_for_#{name}"
   end
 end
