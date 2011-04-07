@@ -44,20 +44,21 @@ class DelayedTest < Test::Unit::TestCase
           @dummy.stubs(:enqueue_delete_for_avatar)
           @dummy.stubs(:avatar_process_and_upload)
           @paths = @dummy.avatar.paths
+          @second_file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '12k.png'), 'rb')
+          @new_digest = @dummy.avatar.generate_digest(@second_file)
           @dummy.stubs(:avatar_digest_was).returns(@dummy.avatar.generate_digest(@file))
         end
 
         context "and the files are different" do
-          setup { @second_file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '12k.png'), 'rb') }
           should "enqueue a job to delete the old file and upload and process a new file" do
-            DummyProxy.expects(:enqueue_save).with(:avatar, @dummy)
+            DummyProxy.expects(:enqueue_save).with(:avatar, @dummy, @new_digest)
             @dummy.update_attributes(:avatar => @second_file)
           end
         end
 
         context "and the files are the same" do
           should "not enqueue a job to delete the file or upload and process a new file" do
-            DummyProxy.expects(:enqueue_save).with(:avatar, @dummy).never
+            DummyProxy.expects(:enqueue_save).never
             @dummy.update_attributes(:avatar => @file)
           end
         end
@@ -104,9 +105,9 @@ class DelayedTest < Test::Unit::TestCase
       end
 
       should "put the file into the storage proxy" do
-        DummyProxy.expects(:processing?).with(:avatar, @dummy).returns(false)
+        DummyProxy.expects(:processing?).with(:avatar, @dummy, anything).returns(false)
         DummyProxy.expects(:enqueue_save).with(:avatar, @dummy, anything)
-        DummyProxy.expects(:process!).with(:avatar, @dummy, anything)
+        DummyProxy.expects(:process!).with(:avatar, @dummy, anything, anything)
         @dummy.update_attributes(:avatar => @file)
       end
     end

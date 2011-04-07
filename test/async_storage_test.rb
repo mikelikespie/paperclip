@@ -44,7 +44,7 @@ class AsyncStorageTest < Test::Unit::TestCase
         context "and saved" do
           setup do
             @proxy = DummyProxy.new("content")
-            DummyProxy.expects(:processing?).with(:avatar, @dummy).returns(true)
+            DummyProxy.expects(:processing?).with(:avatar, @dummy, @dummy.avatar.digest).returns(true)
           end
 
           should "do nothing" do
@@ -57,7 +57,7 @@ class AsyncStorageTest < Test::Unit::TestCase
         context "and saved" do
           setup do
             AWS::S3::S3Object.stubs(:store).with(@dummy.avatar.path, anything, 'testing', :content_type => 'image/png', :access => :public_read)
-            DummyProxy.expects(:processing?).with(:avatar, @dummy).returns(false)
+            DummyProxy.expects(:processing?).with(:avatar, @dummy, @dummy.avatar.digest).returns(false)
             @dummy.avatar.save
           end
 
@@ -83,7 +83,7 @@ class AsyncStorageTest < Test::Unit::TestCase
           @proxy = DummyProxy.new("content")
           @proxy.expects(:processing?).returns(true)
           @proxy.expects(:content)
-          DummyProxy.expects(:new).with(:avatar, anything).returns(@proxy)
+          DummyProxy.expects(:new).with(:avatar, anything, anything).returns(@proxy)
           @dummy.avatar.queued_for_write.delete(:original)
         end
 
@@ -98,7 +98,7 @@ class AsyncStorageTest < Test::Unit::TestCase
           @proxy = DummyProxy.new("content")
           @proxy.expects(:processing?).returns(false)
           @proxy.expects(:content).never
-          DummyProxy.expects(:new).with(:avatar, anything).returns(@proxy)
+          DummyProxy.expects(:new).with(:avatar, anything, anything).returns(@proxy)
           @dummy.avatar.queued_for_write.delete(:original)
         end
 
