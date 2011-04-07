@@ -82,7 +82,7 @@ module Paperclip
 
       if uploaded_file.is_a?(Paperclip::Attachment)
         uploaded_file = uploaded_file.to_file(:original)
-        close_uploaded_file = uploaded_file.respond_to?(:close)
+        unlink_file = uploaded_file.respond_to?(:unlink)
       end
 
       return nil unless valid_assignment?(uploaded_file)
@@ -108,7 +108,7 @@ module Paperclip
       instance_write(:file_size,   @queued_for_write[:original].size.to_i)
       instance_write(:digest, generate_digest(@queued_for_write[:original]))
     ensure
-      uploaded_file.close! if close_uploaded_file
+      uploaded_file.close || uploaded_file.unlink if unlink_file
     end
 
     # Returns the public URL of the attachment, with a given style. Note that
@@ -237,7 +237,7 @@ module Paperclip
         @queued_for_write = { :original => new_original }
         post_process
 
-        old_original.close! if old_original.respond_to?(:close!)
+        old_original.close || old_original.unlink if old_original.respond_to?(:unlink)
 
         save
       else
