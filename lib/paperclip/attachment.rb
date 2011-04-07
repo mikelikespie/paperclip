@@ -108,7 +108,7 @@ module Paperclip
       instance_write(:file_size,   @queued_for_write[:original].size.to_i)
       instance_write(:digest, generate_digest(@queued_for_write[:original]))
     ensure
-      uploaded_file.close if close_uploaded_file
+      uploaded_file.close! if close_uploaded_file
     end
 
     # Returns the public URL of the attachment, with a given style. Note that
@@ -237,7 +237,7 @@ module Paperclip
         @queued_for_write = { :original => new_original }
         post_process
 
-        old_original.close if old_original.respond_to?(:close)
+        old_original.close! if old_original.respond_to?(:close!)
 
         save
       else
