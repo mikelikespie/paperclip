@@ -20,7 +20,7 @@ module Paperclip
 
       def to_file(style = default_style)
         return @queued_for_write[style] if @queued_for_write[style]
-        return super unless (proxy = storage_proxy.new(name, instance, instance_read(:digest))).processing?
+        return super unless (proxy = storage_proxy.new(name, instance, instance_read(:digest))).uploaded_to_s3?
         file_name = instance.send(:"#{name}_file_name")
         log("  \e[32m\e[1m\e[4mAsync paperclip file name:\e[0m   #{file_name}")
         Tempfile.new([File.basename(file_name), File.extname(file_name)]).tap do |tmp|
@@ -30,7 +30,7 @@ module Paperclip
       end
 
       def url(style = default_style, include_updated_timestamp = true)
-        storage_proxy.processing?(:"#{@name}", @instance, instance_read(:digest)) ? interpolate(@default_url, style) : super
+        storage_proxy.uploaded_to_s3?(:"#{@name}", @instance, instance_read(:digest)) ? interpolate(@default_url, style) : super
       end
     end
   end

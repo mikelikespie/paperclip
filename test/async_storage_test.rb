@@ -78,10 +78,10 @@ class AsyncStorageTest < Test::Unit::TestCase
 
       teardown { @file.close }
 
-      context "when the proxy class is processing?" do
+      context "when the proxy class is uploaded_to_s3?" do
         setup do
           @proxy = DummyProxy.new("content")
-          @proxy.expects(:processing?).returns(true)
+          @proxy.expects(:uploaded_to_s3?).returns(true)
           @proxy.expects(:content)
           DummyProxy.expects(:new).with(:avatar, anything, anything).returns(@proxy)
           @dummy.avatar.queued_for_write.delete(:original)
@@ -93,10 +93,10 @@ class AsyncStorageTest < Test::Unit::TestCase
         end
       end
 
-      context "when the proxy class is not processing?" do
+      context "when the proxy class is not uploaded_to_s3?" do
         setup do
           @proxy = DummyProxy.new("content")
-          @proxy.expects(:processing?).returns(false)
+          @proxy.expects(:uploaded_to_s3?).returns(false)
           @proxy.expects(:content).never
           DummyProxy.expects(:new).with(:avatar, anything, anything).returns(@proxy)
           @dummy.avatar.queued_for_write.delete(:original)
