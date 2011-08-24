@@ -89,7 +89,7 @@ class AsyncStorageTest < Test::Unit::TestCase
 
         should "retrieve content from the proxy and generate a tempfile with the right name" do
           file = @dummy.avatar.to_file
-          assert_match /^5k.*\.png$/, File.basename(file.path)
+          assert_match /^paperclip-async-reprocess.*$/, File.basename(file.path)
         end
       end
 

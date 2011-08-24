@@ -23,7 +23,7 @@ module Paperclip
         return super if (proxy = storage_proxy.new(name, instance, instance_read(:digest))).uploaded_to_s3?
         file_name = instance.send(:"#{name}_file_name")
         log("  \e[32m\e[1m\e[4mAsync paperclip file name:\e[0m   #{file_name}")
-        Tempfile.new([File.basename(file_name), File.extname(file_name)]).tap do |tmp|
+        Tempfile.new("paperclip-async-reprocess").tap do |tmp|
           tmp.write(proxy.content)
           tmp.rewind
         end
