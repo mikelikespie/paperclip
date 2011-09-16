@@ -2,7 +2,7 @@ require './test/helper'
 
 class Dummy; end
 class DummyProxy
-  def self.processing?(a,b,c) true; end
+  def self.processing?(a,b) true; end
 end
 
 class DelayedTest < Test::Unit::TestCase
@@ -57,10 +57,8 @@ class DelayedTest < Test::Unit::TestCase
         end
 
         context "and the files are the same" do
-          should "not enqueue a job to delete the file, but should upload and process a new file" do
-            @dummy.expects(:enqueue_save_for_avatar)
-            @dummy.expects(:enqueue_delete_for_avatar).never
-            @dummy.expects(:avatar_process_and_upload)
+          should "not enqueue a job to delete the file or upload and process a new file" do
+            DummyProxy.expects(:enqueue_save).never
             @dummy.update_attributes(:avatar => @file)
           end
         end

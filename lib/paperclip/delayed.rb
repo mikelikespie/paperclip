@@ -10,6 +10,9 @@ module Delayed
     end
 
     define_method "enqueue_save_for_#{name}" do
+      return unless send(:"#{name}_changed?")
+      old_digest, new_digest = send(:"#{name}_digest_was"), send(:"#{name}_digest")
+      return if old_digest == new_digest
       send(name).storage_proxy.enqueue_save(:"#{name}", self, send(:"#{name}_digest"))
     end
 
@@ -21,6 +24,7 @@ module Delayed
     end
 
     define_method "#{name}_process_and_upload" do
+      return unless send(:"#{name}_changed?")
       return if send(name).storage_proxy.processing?(:"#{name}", self, send(:"#{name}_digest"))
       send(name).storage_proxy.process!(:"#{name}", self, send(:"#{name}_digest"), send(name).queued_for_write[:original])
     end
