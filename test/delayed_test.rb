@@ -2,7 +2,8 @@ require './test/helper'
 
 class Dummy; end
 class DummyProxy
-  def self.processing?(a,b) true; end
+  def self.processing?(a,b,c) true; end
+  def self.enqueue_save(a,b,c) true; end
 end
 
 class DelayedTest < Test::Unit::TestCase
@@ -41,8 +42,6 @@ class DelayedTest < Test::Unit::TestCase
       context "when saving the new file" do
         setup do
           AWS::S3::S3Object.stubs(:exists?).returns(true)
-          @dummy.stubs(:enqueue_delete_for_avatar)
-          @dummy.stubs(:avatar_process_and_upload)
           @paths = @dummy.avatar.paths
           @second_file = File.new(File.join(File.dirname(__FILE__), 'fixtures', '12k.png'), 'rb')
           @new_digest = @dummy.avatar.generate_digest(@second_file)
@@ -50,6 +49,11 @@ class DelayedTest < Test::Unit::TestCase
         end
 
         context "and the files are different" do
+          setup do
+            @dummy.stubs(:enqueue_delete_for_avatar)
+            @dummy.stubs(:avatar_process_and_upload)
+          end
+
           should "enqueue a job to delete the old file and upload and process a new file" do
             DummyProxy.expects(:enqueue_save).with(:avatar, @dummy, @new_digest)
             @dummy.update_attributes(:avatar => @second_file)
@@ -57,8 +61,15 @@ class DelayedTest < Test::Unit::TestCase
         end
 
         context "and the files are the same" do
-          should "not enqueue a job to delete the file or upload and process a new file" do
-            DummyProxy.expects(:enqueue_save).never
+          should "should enqueue a save job" do
+            @dummy.update_attributes(:avatar => @file)
+            DummyProxy.expects(:enqueue_save)
+            @dummy.update_attributes(:avatar => @file)
+          end
+
+          should "should not enqueue a delete job" do
+            @dummy.update_attributes(:avatar => @file)
+            DummyProxy.expects(:enqueue_delete).never
             @dummy.update_attributes(:avatar => @file)
           end
         end
@@ -94,7 +105,6 @@ class DelayedTest < Test::Unit::TestCase
         setup do
           AWS::S3::S3Object.stubs(:exists?).returns(false)
           @dummy.stubs(:enqueue_save_for_avatar)
-          @dummy.stubs(:enqueue_delete_for_avatar)
           @dummy.avatar = nil
         end
 

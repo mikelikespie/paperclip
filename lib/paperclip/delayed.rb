@@ -1,7 +1,7 @@
 module Delayed
   def process_in_background(name)
     define_method "#{name}_changed?" do
-      send(:"#{name}_digest_changed?")
+      send(:"#{name}").try(:dirty?)
     end
 
     define_method "halt_processing_for_#{name}" do
@@ -11,8 +11,6 @@ module Delayed
 
     define_method "enqueue_save_for_#{name}" do
       return unless send(:"#{name}_changed?")
-      old_digest, new_digest = send(:"#{name}_digest_was"), send(:"#{name}_digest")
-      return if old_digest == new_digest
       send(name).storage_proxy.enqueue_save(:"#{name}", self, send(:"#{name}_digest"))
     end
 
