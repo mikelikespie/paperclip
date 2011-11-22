@@ -93,6 +93,14 @@ class DelayedTest < Test::Unit::TestCase
           end
         end
 
+        context "and the files have different extensions" do
+          setup { @second_file = File.new(File.join(File.dirname(__FILE__), 'fixtures', 'panda.JPG'), 'rb') }
+          should "enqueue a job to delete the old file and upload and process a new file" do
+            DummyProxy.expects(:enqueue_delete).with(:avatar, @dummy, @paths)
+            @dummy.update_attributes(:avatar => @second_file)
+          end
+        end
+
         context "and the files are the same" do
           should "not enqueue a job to delete the file or upload and process a new file" do
             DummyProxy.expects(:enqueue_delete).with(:avatar, @dummy, @paths).never

@@ -270,6 +270,10 @@ module Paperclip
       instance.send(getter) if responds || attr.to_s == "file_name"
     end
 
+    def old_paths
+      @queued_for_delete
+    end
+
     private
 
     def ensure_required_accessors! #:nodoc:
@@ -339,9 +343,9 @@ module Paperclip
     end
 
     def queue_existing_for_delete #:nodoc:
-      return unless file? && delete_files?
+      return unless file?
       @queued_for_delete += [:original, *styles.keys].uniq.map do |style|
-        path(style) if exists?(style)
+        path(style)
       end.compact
       instance_write(:file_name, nil)
       instance_write(:content_type, nil)

@@ -17,8 +17,9 @@ module Delayed
     define_method "enqueue_delete_for_#{name}" do
       return unless send(:"#{name}_changed?")
       old_digest, new_digest = send(:"#{name}_digest_was"), send(:"#{name}_digest")
+      old_file_type, new_file_type = send(:"#{name}_content_type_was"), send(:"#{name}_content_type")
       return if (old_digest == new_digest) || old_digest.blank?
-      send(name).storage_proxy.enqueue_delete(:"#{name}", self, send(name).paths.map {|path| path.gsub(new_digest, old_digest)})
+      send(name).storage_proxy.enqueue_delete(:"#{name}", self, send(name).old_paths)
     end
 
     define_method "#{name}_process_and_upload" do
