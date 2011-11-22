@@ -339,7 +339,7 @@ module Paperclip
     end
 
     def queue_existing_for_delete #:nodoc:
-      return unless file?
+      return unless file? && delete_files?
       @queued_for_delete += [:original, *styles.keys].uniq.map do |style|
         path(style) if exists?(style)
       end.compact

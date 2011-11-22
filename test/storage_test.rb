@@ -35,10 +35,10 @@ class StorageTest < Test::Unit::TestCase
         @avatar = @dummy.avatar
       end
 
-      should "not call FileUtils.rm" do
+      should "not call FileUtils.rm or File.exists?" do
         @avatar.stubs(:file?).returns true
         @avatar.stubs(:original_filename).returns "original.png"
-        File.stubs(:exist?).returns true
+        File.expects(:exist?).never
 
         FileUtils.expects(:rm).never
         @dummy.destroy_attached_files
